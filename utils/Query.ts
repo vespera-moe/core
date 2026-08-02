@@ -796,7 +796,7 @@ async function updateServer(id: string, servers: number, shards: number) {
 		.update({
 			servers: servers === undefined ? bot.servers : servers,
 			shards: shards === undefined ? bot.shards : shards,
-			updated_at: new Date().toISOString(),
+			updated_at: knex.fn.now(),
 		})
 		.where({ id })
 	if (servers) {
@@ -1179,7 +1179,7 @@ async function approveBotSubmission(id: string, date: number) {
 		enforcements: data.enforcements,
 		discord: data.discord,
 		token: sign({ id }),
-		updated_at: new Date().toISOString(),
+		updated_at: knex.fn.now(),
 	})
 	updateOwners(id, [data.owner], 'bot')
 	return true
