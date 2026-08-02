@@ -68,6 +68,7 @@ async function getBot(id: string, topLevel = true): Promise<Bot> {
 			'bots.vanity',
 			'bots.bg',
 			'bots.banner',
+			'bots.updated_at',
 			knex.raw('JSON_ARRAYAGG(owners_mapping.user_id) as owners'),
 		])
 		.leftJoin('owners_mapping', 'bots.id', 'owners_mapping.target_id')
@@ -88,12 +89,12 @@ async function getBot(id: string, topLevel = true): Promise<Bot> {
 				.then((r) => r)
 		}
 		const botMember =
-			((await getMainGuild()
+			(await getMainGuild()
 				?.members?.fetch(res.id)
 				.catch((e) => null)) ??
 			((await getBotGuild()
 				?.members?.fetch(res.id)
-				.catch((e) => null))) as GuildMember)
+				.catch((e) => null)) as GuildMember)
 		const name = discordBot.displayName
 		res.flags =
 			res.flags |
@@ -119,7 +120,9 @@ async function getBot(id: string, topLevel = true): Promise<Bot> {
 					: botMember.presence.status
 			}
 		} else {
-			res.status = null
+			const updatedAt = new Date(res.updated_at).getTime()
+			const diff = +new Date() - updatedAt
+			res.status = diff > 1000 * 60 * 60 * 48 ? 'offline' : 'online'
 		}
 		delete res.trusted
 		delete res.partnered
@@ -793,6 +796,7 @@ async function updateServer(id: string, servers: number, shards: number) {
 		.update({
 			servers: servers === undefined ? bot.servers : servers,
 			shards: shards === undefined ? bot.shards : shards,
+			updated_at: new Date().toISOString(),
 		})
 		.where({ id })
 	if (servers) {
@@ -1175,6 +1179,7 @@ async function approveBotSubmission(id: string, date: number) {
 		enforcements: data.enforcements,
 		discord: data.discord,
 		token: sign({ id }),
+		updated_at: new Date().toISOString(),
 	})
 	updateOwners(id, [data.owner], 'bot')
 	return true
