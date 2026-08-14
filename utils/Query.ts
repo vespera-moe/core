@@ -120,9 +120,13 @@ async function getBot(id: string, topLevel = true): Promise<Bot> {
 					: botMember.presence.status
 			}
 		} else {
-			const updatedAt = new Date(res.updated_at).getTime()
-			const diff = +new Date() - updatedAt
-			res.status = diff > 1000 * 60 * 60 * 48 ? 'offline' : 'online'
+			if (res.updated_at === null) {
+				res.status = null
+			} else {
+				const updatedAt = new Date(res.updated_at).getTime()
+				const diff = +new Date() - updatedAt
+				res.status = diff > 1000 * 60 * 60 * 48 ? 'offline' : 'online'
+			}
 		}
 		delete res.trusted
 		delete res.partnered
@@ -1179,7 +1183,6 @@ async function approveBotSubmission(id: string, date: number) {
 		enforcements: data.enforcements,
 		discord: data.discord,
 		token: sign({ id }),
-		updated_at: knex.fn.now(),
 	})
 	updateOwners(id, [data.owner], 'bot')
 	return true

@@ -88,6 +88,21 @@ const Bots: NextPage<BotsProps> = ({ data, desc, date, user, theme, csrfToken })
 				) : (
 					<>
 						<div className='w-full pb-2'>
+							{data.status === null && (data.owners as User[]).find((el) => el.id === user?.id) && (
+								<Message type='warning'>
+									<h2 className='text-lg font-extrabold'>
+										봇의 상태를 온라인으로 유지하려면 SDK 혹은 HTTP API를 이용한 서버 수 갱신이
+										필요합니다.
+									</h2>
+									<p>
+										자세한 내용은{' '}
+										<Link href='/developers/docs/SDK' className='text-blue-500 hover:text-blue-400'>
+											개발자 문서
+										</Link>
+										를 확인해주세요.
+									</p>
+								</Message>
+							)}
 							{checkBotFlag(data.flags, 'private') ? (
 								<Message type='info'>
 									<h2 className='text-lg font-extrabold'>
