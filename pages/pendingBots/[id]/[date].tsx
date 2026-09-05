@@ -211,7 +211,12 @@ export const getServerSideProps = async (ctx: Context) => {
 	if (!user) return { notFound: true }
 
 	const data = await get.botSubmit.load(JSON.stringify(ctx.query))
-	if (!data || (data.owner?.id !== user.id && !checkUserFlag(user.flags, 'staff')))
+	if (
+		!data ||
+		(data.owner?.id !== user.id &&
+			!checkUserFlag(user.flags, 'staff') &&
+			!checkUserFlag(user.flags, 'botreviewer'))
+	)
 		return { notFound: true }
 
 	return {
